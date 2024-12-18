@@ -1,15 +1,24 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import * as bcrypt from 'bcrypt';
+import { UserRepository } from './users.repository';
 
 @Injectable()
 export class UsersService {
-  async create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  constructor(private readonly userRepository: UserRepository) {}
+
+  async create(payload: any) {
+    const hashedPassword = await this.__hashPassword(payload.password);
+
+    return this.userRepository.create({
+      ...payload,
+      password: hashedPassword,
+    });
   }
 
   async findAll() {
-    return `This action returns all users`;
+    return this.userRepository.findAll();
   }
 
   async findOne(id: number) {
@@ -27,13 +36,33 @@ export class UsersService {
   async validateLogin(params: { username: string; password: string }) {
     try {
       const { username, password } = params;
-      if (username === 'admin' && password === 'asdfasdf') {
-        return { id: 1, username: 'admin', fullname: 'Admin' };
+
+      const user = await this.userRepository.findByUsername(username);
+      const isMatch = await this.__isPasswordMatch(password, user?.password);
+
+      delete user?.password;
+
+      if (user && isMatch) {
+        return user;
       } else {
         throw new BadRequestException('Invalid username or password');
       }
     } catch (error) {
       throw error;
     }
+  }
+
+  private async __hashPassword(password: string) {
+    const saltOrRounds = 10;
+    const hash = await bcrypt.hash(password, saltOrRounds);
+    return hash;
+  }
+
+  private async __isPasswordMatch(password: string, passwordHash: string) {
+    if (passwordHash) {
+      return await bcrypt.compare(password, passwordHash);
+    }
+
+    return false;
   }
 }
