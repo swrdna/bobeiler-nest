@@ -1,3 +1,4 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from '@/app.module';
@@ -9,6 +10,7 @@ const bootstrap = async () => {
   app.setGlobalPrefix('api');
   app.useGlobalInterceptors(new HTTPResponseInterceptor());
   app.useGlobalFilters(new BaseExceptionFilter());
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
   await app.listen(process.env.APP_PORT ?? 3000);
 };

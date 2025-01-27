@@ -1,14 +1,15 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
+
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import * as bcrypt from 'bcrypt';
-import { UserRepository } from './users.repository';
+import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async create(payload: any) {
+  async create(payload: CreateUserDto) {
     const hashedPassword = await this.__hashPassword(payload.password);
 
     return this.userRepository.create({
@@ -25,7 +26,7 @@ export class UsersService {
     return `This action returns a #${id} user`;
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
+  async update(id: number, payload: UpdateUserDto) {
     return `This action updates a #${id} user`;
   }
 
