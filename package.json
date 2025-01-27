@@ -18,7 +18,9 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "typeorm": "typeorm-ts-node-commonjs"
+    "typeorm": "typeorm-ts-node-commonjs",
+    "g:migration": "npx typeorm migration:create",
+    "db:migrate": "pnpm build && npx typeorm migration:run -d dist/database/data-source.js"
   },
   "dependencies": {
     "@ianvs/prettier-plugin-sort-imports": "^4.4.0",
